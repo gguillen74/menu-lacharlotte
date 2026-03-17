@@ -34,26 +34,6 @@
         header h1 { font-size: 1.8em; letter-spacing: 1px; }
         header .subtitulo { font-size: 0.95em; opacity: 0.8; margin-top: 4px; }
 
-        /* Buscador */
-        .buscador-wrap {
-            position: sticky;
-            top: 8px;
-            z-index: 100;
-            background: var(--bg);
-            padding: 6px 0 10px;
-        }
-        .buscador-wrap input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #ddd;
-            border-radius: 25px;
-            font-size: 15px;
-            outline: none;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .buscador-wrap input:focus { border-color: var(--accent); }
-
         .categoria {
             background: var(--primary);
             color: white;
@@ -89,9 +69,7 @@
             flex-direction: column;
             gap: 6px;
             box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-            transition: box-shadow 0.2s;
         }
-        .plato:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
         .plato-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
         .plato-nombre { font-weight: 600; font-size: 1em; flex: 1; }
         .plato-precio { font-weight: bold; color: var(--accent); white-space: nowrap; }
@@ -105,7 +83,6 @@
             color: white;
             font-weight: bold;
             white-space: nowrap;
-            cursor: default;
         }
         .sin-alergenos { font-size: 0.8em; color: #27ae60; font-style: italic; }
 
@@ -124,9 +101,6 @@
         .tag-sulfitos    { background: #9b59b6; }
         .tag-altramuces  { background: #e91e63; }
         .tag-moluscos    { background: #6c3483; }
-
-        /* Sin resultados */
-        .sin-resultados { text-align: center; color: #999; padding: 30px; display: none; }
 
         /* Leyenda */
         .leyenda-section {
@@ -185,7 +159,7 @@
         .nav-carta a:hover { background: var(--accent); }
 
         @media print {
-            .buscador-wrap, .nav-carta, footer a { display: none; }
+            .nav-carta, footer a { display: none; }
             body { background: white; padding: 0; }
             .plato { break-inside: avoid; }
         }
@@ -205,12 +179,7 @@
         <div class="subtitulo" style="margin-top:8px; font-size:0.8em;">Infórmenos de sus alergias antes de pedir</div>
     </header>
 
-    <div class="buscador-wrap">
-        <input type="text" id="busqueda" placeholder="🔍 Buscar plato (ej: salmón, croquetas, sin gluten...)">
-    </div>
-
     <div id="contenido-carta"></div>
-    <div class="sin-resultados" id="sin-resultados">No se encontraron platos con ese término</div>
 
     <div class="leyenda-section">
         <h3>⚠️ Leyenda de alérgenos</h3>
@@ -226,58 +195,11 @@
 </div>
 
 <script>
-// Todo el código agrupado en una sola etiqueta <script> para evitar errores de carga
+// Datos del restaurante y la carta
 const RESTAURANTE = "RESTAURANTE LA CHARLOTTE";
 
 const CARTA = {
     categorias: [
-        {
-            nombre: "🥗 Entrantes y Ensaladas",
-            platos: [
-                {
-                    nombre: "Patatas bravas",
-                    descripcion: "",
-                    precio: "5,50 €",
-                    alergenos: ["huevo", "gluten"]
-                },
-                {
-                    nombre: "Croquetas caseras (10 uds)",
-                    descripcion: "",
-                    precio: "25,00 €",
-                    alergenos: ["gluten", "lacteos", "huevo"]
-                },
-                {
-                    nombre: "Jamón ibérico",
-                    descripcion: "",
-                    precio: "13,00 €",
-                    alergenos: ["gluten"]
-                },
-                {
-                    nombre: "Tabla de quesos",
-                    descripcion: "",
-                    precio: "10,50 €",
-                    alergenos: ["lacteos", "sulfitos"]
-                },
-                {
-                    nombre: "Ensalada mixta",
-                    descripcion: "",
-                    precio: "7,50 €",
-                    alergenos: ["huevo", "pescado"]
-                },
-                {
-                    nombre: "Ensalada César",
-                    descripcion: "",
-                    precio: "9,50 €",
-                    alergenos: ["gluten", "lacteos", "huevo", "pescado", "mostaza"]
-                },
-                {
-                    nombre: "Ensalada de la casa",
-                    descripcion: "",
-                    precio: "8,00 €",
-                    alergenos: ["lacteos", "sulfitos"]
-                }
-            ]
-        },
         {
             nombre: "🍢 Raciones",
             subcategorias: [
@@ -517,38 +439,71 @@ const ALERGENOS_INFO = {
     moluscos:    { emoji: "🦑", nombre: "Moluscos",          clase: "tag-moluscos",   color: "#6c3483" }
 };
 
+// Lógica de renderizado simplificada al máximo
 document.getElementById('nombre-restaurante').textContent = RESTAURANTE;
 
-function renderTagsAlergenos(alergenos) {
-    if (!alergenos || alergenos.length === 0) {
-        return '<span class="sin-alergenos">✓ Sin alérgenos de declaración obligatoria</span>';
-    }
-    return alergenos.map(a => {
-        const info = ALERGENOS_INFO[a];
-        return info
-            ? `<span class="tag ${info.clase}" title="${info.nombre}">${info.emoji} ${info.nombre}</span>`
-            : `<span class="tag" style="background:#999">${a}</span>`;
-    }).join('');
-}
+let htmlCarta = '';
 
-function renderPlato(plato) {
+CARTA.categorias.forEach(cat => {
+    htmlCarta += `<div class="categoria">${cat.nombre}</div>`;
+    
+    if (cat.platos) {
+        cat.platos.forEach(plato => {
+            htmlCarta += generarHtmlPlato(plato);
+        });
+    } else if (cat.subcategorias) {
+        cat.subcategorias.forEach(sub => {
+            htmlCarta += `<div class="subcategoria">${sub.nombre}</div>`;
+            sub.platos.forEach(plato => {
+                htmlCarta += generarHtmlPlato(plato);
+            });
+        });
+    }
+});
+
+document.getElementById('contenido-carta').innerHTML = htmlCarta;
+
+function generarHtmlPlato(plato) {
+    let htmlAlergenos = '';
+    if (!plato.alergenos || plato.alergenos.length === 0) {
+        htmlAlergenos = '<span class="sin-alergenos">✓ Sin alérgenos de declaración obligatoria</span>';
+    } else {
+        htmlAlergenos = plato.alergenos.map(a => {
+            const info = ALERGENOS_INFO[a];
+            return info 
+                ? `<span class="tag ${info.clase}" title="${info.nombre}">${info.emoji} ${info.nombre}</span>` 
+                : `<span class="tag" style="background:#999">${a}</span>`;
+        }).join('');
+    }
+
+    let htmlPrecio = plato.precio ? `<span class="plato-precio">${plato.precio}</span>` : '';
+    let htmlDescripcion = plato.descripcion ? `<div class="plato-descripcion">${plato.descripcion}</div>` : '';
+
     return `
-        <div class="plato" data-search="${(plato.nombre + ' ' + (plato.descripcion||'')).toLowerCase()}">
+        <div class="plato">
             <div class="plato-header">
                 <span class="plato-nombre">${plato.nombre}</span>
-                ${plato.precio ? `<span class="plato-precio">${plato.precio}</span>` : ''}
+                ${htmlPrecio}
             </div>
-            ${plato.descripcion ? `<div class="plato-descripcion">${plato.descripcion}</div>` : ''}
-            <div class="alergenos">${renderTagsAlergenos(plato.alergenos)}</div>
+            ${htmlDescripcion}
+            <div class="alergenos">${htmlAlergenos}</div>
         </div>
     `;
 }
 
-const contenedor = document.getElementById('contenido-carta');
-CARTA.categorias.forEach(cat => {
-    const divCat = document.createElement('div');
-    divCat.dataset.categoria = cat.nombre.toLowerCase();
-    divCat.innerHTML = `<div class="categoria">${cat.nombre}</div>`;
+// Pintar la leyenda
+let htmlLeyenda = '';
+Object.values(ALERGENOS_INFO).forEach(info => {
+    htmlLeyenda += `
+        <div class="leyenda-item">
+            <div class="leyenda-dot" style="background:${info.color}"></div>
+            <span>${info.emoji} ${info.nombre}</span>
+        </div>
+    `;
+});
+document.getElementById('leyenda').innerHTML = htmlLeyenda;
 
-    if (cat.platos) {
-        divCat.innerHTML
+</script>
+
+</body>
+</html>
