@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú del Día</title>
+    <style>
+        /* ============================================================
+           ESTILOS - No tocar a menos que se quiera cambiar el diseño
+           ============================================================ */
+        :root {
+            --primary: #2c3e50;
+            --accent: #e67e22;
+            --bg: #f5f0eb;
+            --card: #ffffff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: #333;
+            padding: 16px;
+        }
+        .container { max-width: 700px; margin: auto; }
+
+        header {
+            text-align: center;
+            background: var(--primary);
+            color: white;
+            border-radius: 12px;
+            padding: 24px 20px 16px;
+            margin-bottom: 20px;
+        }
+        header h1 { font-size: 1.8em; letter-spacing: 1px; }
+        header .subtitulo { font-size: 0.95em; opacity: 0.8; margin-top: 4px; }
+        header .fecha {
+            display: inline-block;
+            margin-top: 10px;
+            background: var(--accent);
+            color: white;
+            border-radius: 20px;
+            padding: 4px 18px;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+        header .precio-menu {
+            margin-top: 12px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #f0d080;
+        }
+
+        .categoria {
+            background: var(--accent);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            margin: 20px 0 8px;
+            font-size: 1em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .plato {
+            background: var(--card);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        }
+        .plato-nombre { font-weight: 600; font-size: 1em; }
+        .plato-descripcion { font-size: 0.85em; color: #666; font-style: italic; }
+        .alergenos { display: flex; flex-wrap: wrap; gap: 5px; }
+
+        /* Etiquetas de alérgenos */
+        .tag {
+            font-size: 0.7em;
+            padding: 3px 7px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            white-space: nowrap;
+            cursor: default;
+        }
+        .sin-alergenos { font-size: 0.8em; color: #27ae60; font-style: italic; }
+
+        /* Colores por alérgeno (14 alérgenos europeos) */
+        .tag-gluten      { background: #c0932a; }
+        .tag-crustaceos  { background: #e74c3c; }
+        .tag-huevo       { background: #e67e22; }
+        .tag-pescado     { background: #2980b9; }
+        .tag-cacahuete   { background: #7d4e14; }
+        .tag-soja        { background: #27ae60; }
+        .tag-lacteos     { background: #5dade2; }
+        .tag-frutosseco  { background: #8e44ad; }
+        .tag-apio        { background: #1abc9c; }
+        .tag-mostaza     { background: #f1c40f; color: #333; }
+        .tag-sesamo      { background: #d68910; }
+        .tag-sulfitos    { background: #9b59b6; }
+        .tag-altramuces  { background: #e91e63; }
+        .tag-moluscos    { background: #6c3483; }
+
+        /* Leyenda de alérgenos */
+        .leyenda-section {
+            margin-top: 28px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        }
+        .leyenda-section h3 {
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+        .leyenda-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 6px;
+        }
+        .leyenda-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78em;
+        }
+        .leyenda-dot {
+            width: 12px; height: 12px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 0.78em;
+            color: #999;
+            padding-bottom: 20px;
+        }
+        footer a { color: var(--accent); text-decoration: none; }
+
+        /* Enlace a carta general */
+        .nav-carta {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .nav-carta a {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        .nav-carta a:hover { background: var(--accent); }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .nav-carta, footer a { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ================================================================
+     DATOS DEL MENÚ DIARIO
+     ================================================================
+     INSTRUCCIONES PARA LA IA:
+     Modifica únicamente el bloque "const MENU" de abajo.
+     - fecha: "Lunes 17 de marzo de 2025"
+     - precioMenu: "Menú completo: 12,50 €" (o "" para ocultar)
+     - categorias: lista de categorías, cada una con nombre y platos
+     - Cada plato tiene: nombre, descripcion (opcional), alergenos[]
+     - alergenos posibles: "gluten","crustaceos","huevo","pescado",
+       "cacahuete","soja","lacteos","frutosseco","apio","mostaza",
+       "sesamo","sulfitos","altramuces","moluscos"
+     ================================================================ -->
+
+<script id="datos-menu">
+const RESTAURANTE = "El Rincón de Pepe";
+const MENU = {
+    fecha: "Lunes, 17 de marzo de 2025",
+    precioMenu: "Menú completo: 12,50 € (incluye pan, bebida y postre)",
+    categorias: [
+        {
+            nombre: "Primeros platos",
+            platos: [
+                {
+                    nombre: "Sopa de fideos casera",
+                    descripcion: "Caldo de pollo con fideos y verduras",
+                    alergenos: ["gluten"]
+                },
+                {
+                    nombre: "Ensalada mixta",
+                    descripcion: "Lechuga, tomate, cebolla, huevo duro y atún",
+                    alergenos: ["huevo", "pescado"]
+                },
+                {
+                    nombre: "Lentejas estofadas",
+                    descripcion: "Con chorizo y verduras de temporada",
+                    alergenos: ["apio", "sulfitos"]
+                }
+            ]
+        },
+        {
+            nombre: "Segundos platos",
+            platos: [
+                {
+                    nombre: "Filete de merluza a la plancha",
+                    descripcion: "Con guarnición de patatas al vapor y limón",
+                    alergenos: ["pescado"]
+                },
+                {
+                    nombre: "Pollo asado al tomillo",
+                    descripcion: "Con patatas asadas y pimientos",
+                    alergenos: ["sulfitos"]
+                },
+                {
+                    nombre: "Tortilla de patatas",
+                    descripcion: "Tortilla española con cebolla",
+                    alergenos: ["huevo", "lacteos"]
+                }
+            ]
+        },
+        {
+            nombre: "Postres",
+            platos: [
+                {
+                    nombre: "Flan casero",
+                    descripcion: "Con nata montada y caramelo líquido",
+                    alergenos: ["huevo", "lacteos"]
+                },
+                {
+                    nombre: "Fruta del tiempo",
+                    descripcion: "",
+                    alergenos: []
+                },
+                {
+                    nombre: "Yogur natural",
+                    descripcion: "",
+                    alergenos: ["lacteos"]
+                }
+            ]
+        }
+    ]
+};
+</script>
+
+<!-- ================================================================
+     A PARTIR DE AQUÍ NO ES NECESARIO MODIFICAR NADA
+     ================================================================ -->
+
+<div class="container">
+
+    <div class="nav-carta">
+        <a href="carta-general.html">📋 Ver Carta General</a>
+    </div>
+
+    <header>
+        <h1>🍽️ Menú del Día</h1>
+        <div class="subtitulo" id="nombre-restaurante"></div>
+        <div class="fecha" id="fecha-menu"></div>
+        <div class="precio-menu" id="precio-menu"></div>
+    </header>
+
+    <div id="contenido-menu"></div>
+
+    <div class="leyenda-section">
+        <h3>⚠️ Leyenda de alérgenos</h3>
+        <div class="leyenda-grid" id="leyenda"></div>
+    </div>
+
+    <footer>
+        <p>Si tiene alguna alergia o intolerancia alimentaria, consúltenos antes de pedir.</p>
+        <p style="margin-top:6px;">Podemos tener trazas de otros alérgenos no indicados.</p>
+        <p style="margin-top:10px;"><a href="carta-general.html">Ver carta general del restaurante →</a></p>
+    </footer>
+
+</div>
+
+<script>
+// Configuración de los 14 alérgenos europeos
+const ALERGENOS_INFO = {
+    gluten:      { emoji: "🌾", nombre: "Gluten",           clase: "tag-gluten",     color: "#c0932a" },
+    crustaceos:  { emoji: "🦐", nombre: "Crustáceos",       clase: "tag-crustaceos", color: "#e74c3c" },
+    huevo:       { emoji: "🥚", nombre: "Huevo",             clase: "tag-huevo",      color: "#e67e22" },
+    pescado:     { emoji: "🐟", nombre: "Pescado",           clase: "tag-pescado",    color: "#2980b9" },
+    cacahuete:   { emoji: "🥜", nombre: "Cacahuete",         clase: "tag-cacahuete",  color: "#7d4e14" },
+    soja:        { emoji: "🫘", nombre: "Soja",              clase: "tag-soja",       color: "#27ae60" },
+    lacteos:     { emoji: "🥛", nombre: "Lácteos",           clase: "tag-lacteos",    color: "#5dade2" },
+    frutosseco:  { emoji: "🌰", nombre: "Frutos de cáscara", clase: "tag-frutosseco", color: "#8e44ad" },
+    apio:        { emoji: "🥬", nombre: "Apio",              clase: "tag-apio",       color: "#1abc9c" },
+    mostaza:     { emoji: "🟡", nombre: "Mostaza",           clase: "tag-mostaza",    color: "#f1c40f" },
+    sesamo:      { emoji: "🌿", nombre: "Sésamo",            clase: "tag-sesamo",     color: "#d68910" },
+    sulfitos:    { emoji: "🍇", nombre: "Sulfitos",          clase: "tag-sulfitos",   color: "#9b59b6" },
+    altramuces:  { emoji: "🌸", nombre: "Altramuces",        clase: "tag-altramuces", color: "#e91e63" },
+    moluscos:    { emoji: "🦑", nombre: "Moluscos",          clase: "tag-moluscos",   color: "#6c3483" }
+};
+
+// Renderizado del menú
+document.getElementById('nombre-restaurante').textContent = RESTAURANTE;
+document.getElementById('fecha-menu').textContent = MENU.fecha;
+if (MENU.precioMenu) {
+    document.getElementById('precio-menu').textContent = MENU.precioMenu;
+}
+
+const contenedor = document.getElementById('contenido-menu');
+MENU.categorias.forEach(cat => {
+    const divCat = document.createElement('div');
+    divCat.innerHTML = `<div class="categoria">${cat.nombre}</div>`;
+    cat.platos.forEach(plato => {
+        const divPlato = document.createElement('div');
+        divPlato.className = 'plato';
+        let htmlAlergenos = '';
+        if (plato.alergenos.length === 0) {
+            htmlAlergenos = '<span class="sin-alergenos">✓ Sin alérgenos de declaración obligatoria</span>';
+        } else {
+            htmlAlergenos = plato.alergenos.map(a => {
+                const info = ALERGENOS_INFO[a];
+                return info
+                    ? `<span class="tag ${info.clase}" title="${info.nombre}">${info.emoji} ${info.nombre}</span>`
+                    : `<span class="tag" style="background:#999">${a}</span>`;
+            }).join('');
+        }
+        divPlato.innerHTML = `
+            <div class="plato-nombre">${plato.nombre}</div>
+            ${plato.descripcion ? `<div class="plato-descripcion">${plato.descripcion}</div>` : ''}
+            <div class="alergenos">${htmlAlergenos}</div>
+        `;
+        divCat.appendChild(divPlato);
+    });
+    contenedor.appendChild(divCat);
+});
+
+// Leyenda: muestra solo los alérgenos presentes en el menú de hoy
+const alergenosPresentes = new Set(
+    MENU.categorias.flatMap(c => c.platos.flatMap(p => p.alergenos))
+);
+const leyendaDiv = document.getElementById('leyenda');
+Object.entries(ALERGENOS_INFO).forEach(([key, info]) => {
+    if (alergenosPresentes.has(key)) {
+        const item = document.createElement('div');
+        item.className = 'leyenda-item';
+        item.innerHTML = `
+            <div class="leyenda-dot" style="background:${info.color}"></div>
+            <span>${info.emoji} ${info.nombre}</span>
+        `;
+        leyendaDiv.appendChild(item);
+    }
+});
+</script>
+
+</body>
+</html>
