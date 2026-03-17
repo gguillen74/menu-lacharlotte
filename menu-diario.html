@@ -169,43 +169,34 @@
 </head>
 <body>
 
-<!-- ================================================================
-     DATOS DEL MENÚ DIARIO
-     ================================================================
-     INSTRUCCIONES PARA LA IA:
-     Modifica únicamente el bloque "const MENU" de abajo.
-     - fecha: "Lunes 17 de marzo de 2025"
-     - precioMenu: "Menú completo: 12,50 €" (o "" para ocultar)
-     - categorias: lista de categorías, cada una con nombre y platos
-     - Cada plato tiene: nombre, descripcion (opcional), alergenos[]
-     - alergenos posibles: "gluten","crustaceos","huevo","pescado",
-       "cacahuete","soja","lacteos","frutosseco","apio","mostaza",
-       "sesamo","sulfitos","altramuces","moluscos"
-     ================================================================ -->
-
 <script id="datos-menu">
-const RESTAURANTE = "El Rincón de Pepe";
+const RESTAURANTE = "RESTAURANTE LA CHARLOTTE";
 const MENU = {
-    fecha: "Lunes, 17 de marzo de 2025",
-    precioMenu: "Menú completo: 12,50 € (incluye pan, bebida y postre)",
+    fecha: "Miércoles, 18 de marzo de 2026",
+    precioMenu: "Menú completo: 13,50 €",
     categorias: [
         {
             nombre: "Primeros platos",
             platos: [
                 {
-                    nombre: "Sopa de fideos casera",
-                    descripcion: "Caldo de pollo con fideos y verduras",
-                    alergenos: ["gluten"]
+                    nombre: "Consomé",
+                    descripcion: "",
+                    alergenos: []
                 },
                 {
                     nombre: "Ensalada mixta",
-                    descripcion: "Lechuga, tomate, cebolla, huevo duro y atún",
+                    descripcion: "",
                     alergenos: ["huevo", "pescado"]
                 },
                 {
-                    nombre: "Lentejas estofadas",
-                    descripcion: "Con chorizo y verduras de temporada",
-                    alergenos: ["apio", "sulfitos"]
+                    nombre: "Patatas a la importancia",
+                    descripcion: "",
+                    alergenos: ["gluten", "huevo"]
+                },
+                {
+                    nombre: "Cogollos de lechuga con jamón serrano y nueces",
+                    descripcion: "",
+                    alergenos: ["frutosseco"]
                 }
             ]
         },
@@ -213,19 +204,19 @@ const MENU = {
             nombre: "Segundos platos",
             platos: [
                 {
-                    nombre: "Filete de merluza a la plancha",
-                    descripcion: "Con guarnición de patatas al vapor y limón",
+                    nombre: "Pescado con ensalada",
+                    descripcion: "",
                     alergenos: ["pescado"]
                 },
                 {
-                    nombre: "Pollo asado al tomillo",
-                    descripcion: "Con patatas asadas y pimientos",
-                    alergenos: ["sulfitos"]
+                    nombre: "Jamoncitos de pollo a la cerveza",
+                    descripcion: "",
+                    alergenos: ["gluten"]
                 },
                 {
-                    nombre: "Tortilla de patatas",
-                    descripcion: "Tortilla española con cebolla",
-                    alergenos: ["huevo", "lacteos"]
+                    nombre: "Huevos fritos con patatas y panceta",
+                    descripcion: "",
+                    alergenos: ["huevo"]
                 }
             ]
         },
@@ -233,29 +224,25 @@ const MENU = {
             nombre: "Postres",
             platos: [
                 {
-                    nombre: "Flan casero",
-                    descripcion: "Con nata montada y caramelo líquido",
-                    alergenos: ["huevo", "lacteos"]
-                },
-                {
-                    nombre: "Fruta del tiempo",
-                    descripcion: "",
-                    alergenos: []
-                },
-                {
-                    nombre: "Yogur natural",
+                    nombre: "Yogur",
                     descripcion: "",
                     alergenos: ["lacteos"]
+                },
+                {
+                    nombre: "Cuajada",
+                    descripcion: "",
+                    alergenos: ["lacteos"]
+                },
+                {
+                    nombre: "Flan",
+                    descripcion: "",
+                    alergenos: ["huevo", "lacteos"]
                 }
             ]
         }
     ]
 };
 </script>
-
-<!-- ================================================================
-     A PARTIR DE AQUÍ NO ES NECESARIO MODIFICAR NADA
-     ================================================================ -->
 
 <div class="container">
 
@@ -288,8 +275,8 @@ const MENU = {
 <script>
 // Configuración de los 14 alérgenos europeos
 const ALERGENOS_INFO = {
-    gluten:      { emoji: "🌾", nombre: "Gluten",           clase: "tag-gluten",     color: "#c0932a" },
-    crustaceos:  { emoji: "🦐", nombre: "Crustáceos",       clase: "tag-crustaceos", color: "#e74c3c" },
+    gluten:      { emoji: "🌾", nombre: "Gluten",            clase: "tag-gluten",     color: "#c0932a" },
+    crustaceos:  { emoji: "🦐", nombre: "Crustáceos",        clase: "tag-crustaceos", color: "#e74c3c" },
     huevo:       { emoji: "🥚", nombre: "Huevo",             clase: "tag-huevo",      color: "#e67e22" },
     pescado:     { emoji: "🐟", nombre: "Pescado",           clase: "tag-pescado",    color: "#2980b9" },
     cacahuete:   { emoji: "🥜", nombre: "Cacahuete",         clase: "tag-cacahuete",  color: "#7d4e14" },
